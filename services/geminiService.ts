@@ -4,9 +4,24 @@ import { GameState, Player, SymbolType, GamePhase } from "../types";
 import { isValidMove } from "../logic/gameEngine";
 
 export const getBotMove = async (state: GameState): Promise<number | null> => {
-  // Безопасное получение ключа: проверяем существование process и process.env
-  const env = typeof process !== 'undefined' ? process.env : {};
-  const apiKey = (env as any).API_KEY;
+  // Безопасное получение ключа для работы в браузере (Vercel/Vite/ESM)
+  let apiKey: string | undefined;
+  
+  try {
+    // Пытаемся получить ключ из глобального контекста
+    apiKey = (globalThis as any).process?.env?.API_KEY || (import.meta as any).env?.VITE_API_KEY;
+  } catch (e) {
+    console.warn("Environment check failed, trying direct access...");
+  }
+
+  // Если ключ все еще не найден, используем фолбек к прямому обращению (инъекция среды)
+  if (!apiKey) {
+    try {
+      apiKey = process.env.API_KEY;
+    } catch (e) {
+      console.error("API_KEY not found in process.env");
+    }
+  }
   
   if (!apiKey) {
     console.warn("Gemini API Key is missing. Using random fallback.");
@@ -22,13 +37,15 @@ export const getBotMove = async (state: GameState): Promise<number | null> => {
     const phaseStr = state.phase === GamePhase.EXPANSION ? 'EXPANSION' : 'BATTLE';
 
     const prompt = `
-      You are an AI player for "Plus-Slash".
+      You are an expert player in "Plus-Slash".
       Board: [${boardStr}]
       Phase: ${phaseStr}
-      Your Symbol: ${playerSymbol}
+      You are: ${playerSymbol}
       Opponent: ${opponentSymbol}
-      Locked: ${state.lastMoveIndex}
-      Return move index (0-8) as JSON: {"move": number}
+      Locked cell (Ko rule): ${state.lastMoveIndex}
+      
+      Strategy: Fill board in Expansion. In Battle, connect 3 Slashes (/).
+      Return move index (0-8) as JSON: {"move": index}
     `;
 
     const response = await ai.models.generateContent({
@@ -46,7 +63,7 @@ export const getBotMove = async (state: GameState): Promise<number | null> => {
       return move;
     }
   } catch (error) {
-    console.error("AI Error:", error);
+    console.error("AI Decision Error:", error);
   }
 
   return getRandomMove(state);
