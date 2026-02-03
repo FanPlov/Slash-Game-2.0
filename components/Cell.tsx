@@ -46,7 +46,7 @@ const Cell: React.FC<CellProps> = React.memo(({ symbol, isValid, onClick, isLast
       onClick={onClick}
       disabled={disabled || (!isValid && !symbol)}
       className={`
-        relative w-full h-full min-h-[50px] 
+        relative w-full h-full min-h-[45px] 
         flex items-center justify-center
         transition-all duration-300
         ${symbol ? 'bg-white/5' : 'bg-white/[0.02]'}
