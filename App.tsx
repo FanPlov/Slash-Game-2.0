@@ -165,12 +165,12 @@ const App: React.FC = () => {
     <div className="min-h-screen h-[100dvh] flex flex-col overflow-hidden text-slate-100 bg-slate-950">
       
       {status === GameStatus.MENU ? (
-        <div className="flex-1 flex flex-col items-center justify-center p-6 space-y-5 animate-in fade-in zoom-in duration-700">
+        <div className="flex-1 flex flex-col items-center justify-center p-6 space-y-4 animate-in fade-in zoom-in duration-700">
           <div className="text-center space-y-1">
-            <h1 className="text-4xl sm:text-6xl font-black orbitron tracking-tighter whitespace-nowrap text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-white to-indigo-600 drop-shadow-[0_0_25px_rgba(34,211,238,0.4)]">
+            <h1 className="text-4xl sm:text-6xl font-black orbitron tracking-tighter whitespace-nowrap text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-white to-indigo-600 drop-shadow-[0_0_30px_rgba(34,211,238,0.5)]">
               SLASH GAME
             </h1>
-            <p className="text-slate-100 tracking-[0.2em] text-[9px] uppercase font-black opacity-90">Abstract Intelligence System</p>
+            <p className="text-slate-100 tracking-[0.2em] text-[10px] uppercase font-black opacity-100 drop-shadow-sm">Abstract Intelligence System</p>
           </div>
           
           <div className="flex flex-col gap-3 w-full max-w-sm">
@@ -199,25 +199,25 @@ const App: React.FC = () => {
             </div>
           </div>
           
-          <div className="flex flex-col items-center gap-1.5 pt-4">
-            <div className="w-8 h-[1px] bg-slate-800" />
-            <span className="text-[9px] font-black uppercase tracking-[0.3em] text-slate-400 opacity-80">
+          <div className="flex flex-col items-center gap-2 pt-2">
+            <div className="w-10 h-[1px] bg-indigo-500/50" />
+            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.4)]">
               Created by Asadbek
             </span>
           </div>
         </div>
       ) : (
         <>
-          <header className="h-11 flex items-center justify-between px-5 glass border-b border-white/5 z-50">
+          <header className="h-10 flex items-center justify-between px-5 glass border-b border-white/5 z-50">
             <button onClick={handleBackToMenu} className="p-2 text-slate-400 hover:text-white transition-colors"><IconBack /></button>
             <div className="flex flex-col items-center">
-              <h2 className="text-[7px] font-black text-white/30 uppercase tracking-[0.2em] orbitron whitespace-nowrap">Slash Game</h2>
+              <h2 className="text-[7px] font-black text-white/40 uppercase tracking-[0.2em] orbitron whitespace-nowrap">Slash Game</h2>
               <div className="h-0.5 w-6 bg-indigo-500 rounded-full" />
             </div>
             <button onClick={() => setShowSettings(true)} className="p-2 text-slate-400 hover:text-white transition-colors"><IconSettings /></button>
           </header>
           
-          <main className="flex-1 flex flex-col items-center justify-center p-4 gap-1.5">
+          <main className="flex-1 flex flex-col items-center justify-center p-2 gap-1 overflow-hidden">
             <div className={`w-full max-w-sm flex items-center justify-between px-2 transition-all duration-300 ${gameState.currentPlayer === Player.TWO ? 'opacity-100 scale-100' : 'opacity-40 scale-95'}`}>
                <div className="flex items-center gap-2">
                   <div className={`w-7 h-7 rounded-lg flex items-center justify-center font-black text-[10px] transition-all ${gameState.currentPlayer === Player.TWO ? 'bg-rose-500 text-white shadow-lg shadow-rose-500/20' : 'glass text-slate-500'}`}>{mode === GameMode.PVE ? 'AI' : 'P2'}</div>
@@ -234,7 +234,7 @@ const App: React.FC = () => {
             </div>
             
             <div className="relative p-1.5 glass rounded-[1.2rem] shadow-[0_20px_40px_-10px_rgba(0,0,0,1)] border-white/5">
-              <div className="grid grid-cols-3 gap-1 p-1 rounded-xl bg-black/40 w-[68vw] h-[68vw] max-w-[220px] max-h-[220px]">
+              <div className="grid grid-cols-3 gap-1 p-1 rounded-xl bg-black/40 w-[65vw] h-[65vw] max-w-[210px] max-h-[210px]">
                 {gameState.board.map((symbol, idx) => (
                   <Cell 
                     key={idx} 
@@ -281,21 +281,21 @@ const App: React.FC = () => {
             </div>
           </main>
 
-          <footer className="glass border-t border-white/5 px-6 py-2 pb-4 z-50">
+          <footer className="glass border-t border-white/5 px-6 pt-3 pb-10 z-50">
             <div className="flex items-center justify-between max-w-sm mx-auto">
               <button onClick={() => setShowMenu(true)} className="flex flex-col items-center gap-0 group">
                 <div className="p-1.5 rounded-lg transition-all group-hover:bg-white/10 text-slate-400 group-hover:text-white"><IconMenu /></div>
-                <span className="text-[6px] font-black uppercase tracking-widest opacity-40">{t.menu}</span>
+                <span className="text-[7px] font-black uppercase tracking-widest opacity-40">{t.menu}</span>
               </button>
               
               <div className="flex gap-2">
-                <button onClick={handleUndo} disabled={currentStep === 0 || isBotThinking} className={`p-2.5 rounded-lg transition-all ${currentStep === 0 ? 'opacity-5' : 'glass hover:bg-white/10'}`}><IconUndo /></button>
-                <button onClick={handleRedo} disabled={currentStep >= history.length - 1} className={`p-2.5 rounded-lg transition-all ${currentStep >= history.length - 1 ? 'opacity-5' : 'glass hover:bg-white/10'}`}><IconRedo /></button>
+                <button onClick={handleUndo} disabled={currentStep === 0 || isBotThinking} className={`p-3 rounded-lg transition-all ${currentStep === 0 ? 'opacity-5' : 'glass hover:bg-white/10'}`}><IconUndo /></button>
+                <button onClick={handleRedo} disabled={currentStep >= history.length - 1} className={`p-3 rounded-lg transition-all ${currentStep >= history.length - 1 ? 'opacity-5' : 'glass hover:bg-white/10'}`}><IconRedo /></button>
               </div>
 
               <button onClick={togglePause} className="flex flex-col items-center gap-0 group">
                 <div className="p-1.5 rounded-lg transition-all group-hover:bg-white/10 text-slate-400 group-hover:text-white"><IconPause /></div>
-                <span className="text-[6px] font-black uppercase tracking-widest opacity-40">{t.paused}</span>
+                <span className="text-[7px] font-black uppercase tracking-widest opacity-40">{t.paused}</span>
               </button>
             </div>
           </footer>
