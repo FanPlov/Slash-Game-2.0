@@ -3,28 +3,36 @@ import { GoogleGenAI } from "@google/genai";
 import { GameState, Player, SymbolType, GamePhase } from "../types";
 import { isValidMove } from "../logic/gameEngine";
 
-export const getBotMove = async (state: GameState): Promise<number | null> => {
-  // Безопасное получение ключа для работы в браузере (Vercel/Vite/ESM)
-  let apiKey: string | undefined;
-  
+/**
+ * Безопасно получает API ключ из различных возможных источников окружения.
+ * Это предотвращает ошибку "process is not defined" в браузерах и при деплое.
+ */
+const fetchApiKey = (): string | null => {
   try {
-    // Пытаемся получить ключ из глобального контекста
-    apiKey = (globalThis as any).process?.env?.API_KEY || (import.meta as any).env?.VITE_API_KEY;
-  } catch (e) {
-    console.warn("Environment check failed, trying direct access...");
-  }
-
-  // Если ключ все еще не найден, используем фолбек к прямому обращению (инъекция среды)
-  if (!apiKey) {
-    try {
-      apiKey = process.env.API_KEY;
-    } catch (e) {
-      console.error("API_KEY not found in process.env");
+    // 1. Пробуем через globalThis (самый безопасный способ для браузера)
+    const g = globalThis as any;
+    if (g.process?.env?.API_KEY) return g.process.env.API_KEY;
+    
+    // 2. Пробуем стандартное обращение (может вызвать ReferenceError, поэтому в try-catch)
+    if (typeof process !== 'undefined' && process.env?.API_KEY) {
+      return process.env.API_KEY;
     }
+
+    // 3. Пробуем Vite-специфичный способ
+    if ((import.meta as any).env?.VITE_API_KEY) {
+      return (import.meta as any).env.VITE_API_KEY;
+    }
+  } catch (e) {
+    // Игнорируем ошибки доступа к окружению
   }
+  return null;
+};
+
+export const getBotMove = async (state: GameState): Promise<number | null> => {
+  const apiKey = fetchApiKey();
   
   if (!apiKey) {
-    console.warn("Gemini API Key is missing. Using random fallback.");
+    console.warn("Gemini API Key is missing. Falling back to random move.");
     return getRandomMove(state);
   }
 
@@ -63,7 +71,7 @@ export const getBotMove = async (state: GameState): Promise<number | null> => {
       return move;
     }
   } catch (error) {
-    console.error("AI Decision Error:", error);
+    console.error("Gemini AI error:", error);
   }
 
   return getRandomMove(state);
