@@ -172,7 +172,7 @@ const App: React.FC = () => {
       {status === GameStatus.MENU ? (
         <div className="flex-1 flex flex-col items-center justify-center p-6 space-y-12 animate-in fade-in duration-300">
           <div className="text-center space-y-3">
-            <h1 className="text-5xl sm:text-7xl font-black text-white italic tracking-tighter font-['Orbitron']">
+            <h1 className="text-5xl sm:text-7xl font-black text-white italic tracking-tighter orbitron">
               PLUS-SLASH
             </h1>
             <p className={`${theme.textDim} tracking-[0.3em] text-[10px] uppercase font-bold`}>Strategic Board Combat</p>
@@ -190,7 +190,7 @@ const App: React.FC = () => {
         <>
           <header className={`h-16 border-b ${theme.border} flex items-center justify-between px-4 ${theme.surface} z-50`}>
             <button onClick={handleBackToMenu} className={`${theme.textDim} hover:${theme.text} p-2`}><IconBack /></button>
-            <h2 className={`text-xs font-black ${theme.text} uppercase tracking-[0.2em] font-['Orbitron']`}>{t.gameTitle}</h2>
+            <h2 className={`text-xs font-black ${theme.text} uppercase tracking-[0.2em] orbitron`}>{t.gameTitle}</h2>
             <button onClick={() => setShowSettings(true)} className={`${theme.textDim} hover:${theme.text} p-2`}><IconSettings /></button>
           </header>
           <main className="flex-1 flex flex-col items-center justify-center p-4">
@@ -244,7 +244,6 @@ const App: React.FC = () => {
         </>
       )}
 
-      {/* Modals are always accessible through their state */}
       {showMenu && (
         <div className="fixed inset-0 z-[200] bg-black/85 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200">
           <div className={`${theme.modalBg} w-full max-w-xs rounded-3xl p-8 border ${theme.border} relative shadow-[0_0_50px_rgba(0,0,0,0.5)]`}>
@@ -255,6 +254,9 @@ const App: React.FC = () => {
               <button onClick={() => {setShowSettings(true); setShowMenu(false);}} className={`w-full text-left p-4 rounded-xl ${isDark ? 'bg-white/5 hover:bg-white/10' : 'bg-black/5 hover:bg-black/10'} ${theme.text} font-bold transition-all`}>⚙️ {t.settings}</button>
               {status !== GameStatus.MENU && <button onClick={handleBackToMenu} className="w-full text-left p-4 rounded-xl bg-red-500/10 text-red-500 font-bold hover:bg-red-500/20 transition-all">🚪 {t.exit}</button>}
             </nav>
+            <div className="mt-8 pt-4 border-t border-white/5 text-center">
+               <span className="text-[9px] font-bold text-white/20 uppercase tracking-[0.3em]">Created by Asadbek</span>
+            </div>
           </div>
         </div>
       )}
@@ -284,7 +286,7 @@ const App: React.FC = () => {
 
       {showRules && (
         <div className="fixed inset-0 z-[220] bg-black/85 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200">
-          <div className={`${theme.modalBg} w-full max-w-sm rounded-3xl p-8 border ${theme.border} relative shadow-[0_0_50px_rgba(0,0,0,0.5)] max-h-[85vh] overflow-y-auto`}>
+          <div className={`${theme.modalBg} w-full max-sm rounded-3xl p-8 border ${theme.border} relative shadow-[0_0_50px_rgba(0,0,0,0.5)] max-h-[85vh] overflow-y-auto`}>
             <button onClick={() => setShowRules(false)} className={`absolute top-6 right-6 ${theme.textDim} hover:${theme.text}`}><IconX /></button>
             <h3 className={`text-2xl font-black ${theme.text} mb-6 uppercase tracking-tighter`}>📄 {t.rulesTitle}</h3>
             <div className={`space-y-6 text-xs leading-relaxed ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
@@ -308,7 +310,7 @@ const App: React.FC = () => {
 
       {status === GameStatus.PAUSED && (
         <div className="fixed inset-0 z-[300] bg-black/95 backdrop-blur-xl flex flex-col items-center justify-center animate-in fade-in duration-300 p-6">
-           <h2 className="text-5xl font-black text-white uppercase tracking-tighter mb-16 italic">PAUSED</h2>
+           <h2 className="text-5xl font-black text-white uppercase tracking-tighter mb-16 italic orbitron">PAUSED</h2>
            <button onClick={togglePause} className="px-12 py-5 bg-white text-black font-black rounded-2xl flex items-center gap-4 hover:scale-105 active:scale-95 transition-all shadow-2xl">
              <IconPlay /> <span className="text-lg tracking-tight">{t.resume}</span>
            </button>

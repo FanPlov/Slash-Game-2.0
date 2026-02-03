@@ -4,35 +4,34 @@ import { GameState, Player, SymbolType, GamePhase } from "../types";
 import { isValidMove } from "../logic/gameEngine";
 
 /**
- * Безопасно получает API ключ из различных возможных источников окружения.
- * Это предотвращает ошибку "process is not defined" в браузерах и при деплое.
+ * Безопасное получение API ключа без краша приложения в браузере.
  */
-const fetchApiKey = (): string | null => {
+const getSafeApiKey = (): string | null => {
   try {
-    // 1. Пробуем через globalThis (самый безопасный способ для браузера)
+    // Проверка через globalThis для безопасности в браузерной среде Vercel
     const g = globalThis as any;
-    if (g.process?.env?.API_KEY) return g.process.env.API_KEY;
+    const processEnv = g.process?.env?.API_KEY;
+    if (processEnv) return processEnv;
+
+    // Фолбек для Vite
+    const viteEnv = (import.meta as any).env?.VITE_API_KEY;
+    if (viteEnv) return viteEnv;
     
-    // 2. Пробуем стандартное обращение (может вызвать ReferenceError, поэтому в try-catch)
-    if (typeof process !== 'undefined' && process.env?.API_KEY) {
+    // Прямая попытка (может выкинуть ошибку в некоторых сборках, поэтому в try-catch)
+    if (typeof process !== 'undefined' && process.env.API_KEY) {
       return process.env.API_KEY;
     }
-
-    // 3. Пробуем Vite-специфичный способ
-    if ((import.meta as any).env?.VITE_API_KEY) {
-      return (import.meta as any).env.VITE_API_KEY;
-    }
   } catch (e) {
-    // Игнорируем ошибки доступа к окружению
+    // Игнорируем ошибки доступа
   }
   return null;
 };
 
 export const getBotMove = async (state: GameState): Promise<number | null> => {
-  const apiKey = fetchApiKey();
+  const apiKey = getSafeApiKey();
   
   if (!apiKey) {
-    console.warn("Gemini API Key is missing. Falling back to random move.");
+    console.warn("Gemini API Key is missing. AI disabled.");
     return getRandomMove(state);
   }
 
@@ -45,15 +44,17 @@ export const getBotMove = async (state: GameState): Promise<number | null> => {
     const phaseStr = state.phase === GamePhase.EXPANSION ? 'EXPANSION' : 'BATTLE';
 
     const prompt = `
-      You are an expert player in "Plus-Slash".
+      You are an expert AI playing "Plus-Slash".
       Board: [${boardStr}]
       Phase: ${phaseStr}
-      You are: ${playerSymbol}
+      You play as: ${playerSymbol}
       Opponent: ${opponentSymbol}
       Locked cell (Ko rule): ${state.lastMoveIndex}
       
-      Strategy: Fill board in Expansion. In Battle, connect 3 Slashes (/).
-      Return move index (0-8) as JSON: {"move": index}
+      Instructions:
+      1. In EXPANSION: Fill board, prioritize spots to make PLUS (+).
+      2. In BATTLE: Get 3 SLASH (/) in a row to win.
+      Return your move as JSON: {"move": index} (0-8)
     `;
 
     const response = await ai.models.generateContent({
@@ -71,7 +72,7 @@ export const getBotMove = async (state: GameState): Promise<number | null> => {
       return move;
     }
   } catch (error) {
-    console.error("Gemini AI error:", error);
+    console.error("AI Error:", error);
   }
 
   return getRandomMove(state);

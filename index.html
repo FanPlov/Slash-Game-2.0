@@ -13,13 +13,12 @@
             font-family: 'Inter', sans-serif;
             background-color: #1a1a1a;
             color: #e5e5e5;
-            overflow: hidden; /* Prevent scrolling */
-            touch-action: none; /* Disable all browser touch gestures (zooming, panning) */
-            -webkit-user-select: none; /* Disable text selection on iOS */
+            overflow: hidden;
+            touch-action: none;
+            -webkit-user-select: none;
             user-select: none;
         }
         
-        /* Custom Scrollbar for modals */
         ::-webkit-scrollbar {
             width: 8px;
         }
@@ -31,8 +30,8 @@
             border-radius: 4px;
         }
 
-        .perspective-container {
-             perspective: 1000px;
+        .orbitron {
+            font-family: 'Orbitron', sans-serif;
         }
     </style>
 <script type="importmap">
@@ -48,5 +47,7 @@
 </head>
 <body>
     <div id="root"></div>
+    <!-- Критически важно для работы в Vercel/Vite -->
+    <script type="module" src="/index.tsx"></script>
 </body>
 </html>
