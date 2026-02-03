@@ -125,11 +125,7 @@ const App: React.FC = () => {
     ) {
       const runBot = async () => {
          setIsBotThinking(true);
-         // Simulate "Thinking" delay
-         await new Promise(r => setTimeout(r, 1000));
-         
          const move = await getBotMove(gameState);
-         
          if (move !== null && status === GameStatus.PLAYING) {
             makeMove(move, true);
          }
@@ -233,7 +229,6 @@ const App: React.FC = () => {
   };
 
   // --- STYLES ---
-  // Theme Variables
   const theme = {
     bg: isDark ? 'bg-[#1a1a1a]' : 'bg-gray-100',
     surface: isDark ? 'bg-[#1f1f1f]' : 'bg-white',
@@ -244,7 +239,6 @@ const App: React.FC = () => {
     modalBg: isDark ? 'bg-[#2d2d2d]' : 'bg-white',
   };
 
-  // Inject dynamic styles for Cell component compatibility
   const cellStyle = `
     .cell-bg {
         background-color: ${isDark ? '#333' : '#fff'};
@@ -254,14 +248,105 @@ const App: React.FC = () => {
     }
   `;
 
-  // --- RENDERING ---
+  // --- RENDERING MODALS ---
+  const Modals = () => (
+    <>
+      {showSettings && (
+         <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+           <div className={`${theme.modalBg} w-full max-w-xs rounded-2xl p-6 border ${theme.border} shadow-2xl relative`}>
+              <button onClick={() => setShowSettings(false)} className={`absolute top-4 right-4 ${theme.textDim} hover:${theme.text}`}>
+                <IconX />
+              </button>
+              <h3 className={`text-xl font-bold ${theme.text} mb-6 pr-8`}>{t.settings}</h3>
+              <div className="space-y-4">
+                 <div className={`p-3 ${isDark ? 'bg-[#1a1a1a]' : 'bg-gray-100'} rounded-lg`}>
+                    <span className={`${theme.textDim} text-xs font-bold uppercase mb-2 block`}>{t.lang}</span>
+                    <div className="flex gap-2">
+                       {[Language.RU, Language.EN, Language.UZ].map(l => (
+                         <button key={l} onClick={() => setLanguage(l)} className={`flex-1 py-2 text-xs font-bold rounded transition-colors ${language === l ? 'bg-blue-600 text-white' : `${isDark ? 'bg-[#333]' : 'bg-white'} ${theme.textDim}`}`}>
+                           {l}
+                         </button>
+                       ))}
+                    </div>
+                 </div>
+                 <div className={`p-3 ${isDark ? 'bg-[#1a1a1a]' : 'bg-gray-100'} rounded-lg flex items-center justify-between`}>
+                    <span className={`${theme.textDim} text-xs font-bold uppercase`}>{t.theme}</span>
+                    <button onClick={() => setIsDark(!isDark)} className={`px-4 py-1.5 rounded font-bold text-xs ${isDark ? 'bg-blue-600 text-white' : 'bg-gray-300 text-black'}`}>
+                       {isDark ? 'DARK' : 'LIGHT'}
+                    </button>
+                 </div>
+                 <div className={`p-3 ${isDark ? 'bg-[#1a1a1a]' : 'bg-gray-100'} rounded-lg flex items-center justify-between`}>
+                    <span className={`${theme.textDim} text-xs font-bold uppercase`}>{t.sound}</span>
+                    <button onClick={() => setSoundEnabled(!soundEnabled)} className={`px-4 py-1.5 rounded font-bold text-xs ${soundEnabled ? 'bg-green-600 text-white' : 'bg-red-500 text-white'}`}>
+                       {soundEnabled ? t.on : t.off}
+                    </button>
+                 </div>
+              </div>
+           </div>
+         </div>
+      )}
+
+      {showMenu && (
+        <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in zoom-in duration-200">
+           <div className={`${theme.modalBg} w-full max-w-sm rounded-2xl p-6 shadow-2xl border ${theme.border} relative`}>
+              <button onClick={() => setShowMenu(false)} className={`absolute top-4 right-4 ${theme.textDim} hover:${theme.text}`}>
+                  <IconX />
+              </button>
+              <div className="flex justify-between items-center mb-6">
+                 <h2 className={`text-xl font-bold ${theme.text} uppercase tracking-wider`}>{t.menu}</h2>
+              </div>
+              <nav className="space-y-3">
+                 <button onClick={() => { setShowRules(true); }} className={`w-full text-left p-4 rounded-xl ${isDark ? 'bg-[#2d2d2d]' : 'bg-gray-100'} ${theme.text} font-bold hover:brightness-110 transition-all`}>
+                    📖 {t.rules}
+                 </button>
+                 <button onClick={() => { setShowSettings(true); }} className={`w-full text-left p-4 rounded-xl ${isDark ? 'bg-[#2d2d2d]' : 'bg-gray-100'} ${theme.text} font-bold hover:brightness-110 transition-all`}>
+                    ⚙️ {t.settings}
+                 </button>
+                 <button onClick={handleBackToMenu} className={`w-full text-left p-4 rounded-xl bg-red-500/10 text-red-500 font-bold hover:bg-red-500/20 transition-all`}>
+                    🚪 {t.exit}
+                 </button>
+              </nav>
+           </div>
+        </div>
+      )}
+      
+      {showRules && (
+        <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+           <div className={`${theme.modalBg} w-full max-w-sm rounded-2xl p-6 border ${theme.border} shadow-2xl max-h-[85vh] overflow-y-auto relative`}>
+              <button onClick={() => setShowRules(false)} className={`absolute top-4 right-4 ${theme.textDim} hover:${theme.text}`}>
+                  <IconX />
+              </button>
+              <h3 className={`text-2xl font-black ${theme.text} mb-6 flex items-center gap-2 pr-8`}>
+                 <span>📄</span> {t.rulesTitle}
+              </h3>
+              <div className={`space-y-6 text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'} leading-relaxed`}>
+                 <div className={`p-4 ${isDark ? 'bg-[#1a1a1a]' : 'bg-gray-100'} rounded-xl border ${theme.border}`}>
+                    <p className="font-bold text-blue-500 mb-2">{t.expansion}</p>
+                    <p>{t.rulesText1}</p>
+                 </div>
+                 <div className={`p-4 ${isDark ? 'bg-[#1a1a1a]' : 'bg-gray-100'} rounded-xl border ${theme.border}`}>
+                    <p className="font-bold text-amber-500 mb-2">{t.battle}</p>
+                    <p>{t.rulesText2}</p>
+                 </div>
+                 <div className="p-4 bg-rose-500/10 rounded-xl border border-rose-500/30">
+                    <p className="font-bold text-rose-500 mb-2">⚠️ {t.locked}</p>
+                    <p>{t.rulesText3}</p>
+                 </div>
+                 <p className={`text-center font-bold ${theme.text} pt-2`}>{t.winCondition}</p>
+              </div>
+           </div>
+        </div>
+      )}
+    </>
+  );
+
+  // --- RENDERING VIEWS ---
 
   if (status === GameStatus.MENU) {
     return (
       <div className={`min-h-screen ${theme.bg} flex flex-col items-center justify-center p-6 space-y-8 animate-in fade-in duration-300`}>
         <style>{cellStyle}</style>
         <div className="text-center space-y-2">
-          {/* Corrected Title Clipping: Added pr-4 */}
           <h1 className="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-rose-500 italic tracking-tighter font-['Orbitron'] pr-4 pb-1">
             {t.gameTitle}
           </h1>
@@ -294,111 +379,15 @@ const App: React.FC = () => {
           <div className="mt-2 font-bold opacity-60">Created by Asadbek</div>
         </div>
 
-        {/* REUSED SETTINGS MODAL */}
-        {showSettings && (
-           <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-             <div className={`${theme.modalBg} w-full max-w-xs rounded-2xl p-6 border ${theme.border} shadow-2xl relative`}>
-                <button onClick={() => setShowSettings(false)} className={`absolute top-4 right-4 ${theme.textDim} hover:${theme.text}`}>
-                  <IconX />
-                </button>
-                <h3 className={`text-xl font-bold ${theme.text} mb-6 pr-8`}>{t.settings}</h3>
-                <div className="space-y-4">
-                   {/* Language */}
-                   <div className={`p-3 ${isDark ? 'bg-[#1a1a1a]' : 'bg-gray-100'} rounded-lg`}>
-                      <span className={`${theme.textDim} text-xs font-bold uppercase mb-2 block`}>{t.lang}</span>
-                      <div className="flex gap-2">
-                         {[Language.RU, Language.EN, Language.UZ].map(l => (
-                           <button key={l} onClick={() => setLanguage(l)} className={`flex-1 py-2 text-xs font-bold rounded transition-colors ${language === l ? 'bg-blue-600 text-white' : `${isDark ? 'bg-[#333]' : 'bg-white'} ${theme.textDim}`}`}>
-                             {l}
-                           </button>
-                         ))}
-                      </div>
-                   </div>
-                   {/* Theme */}
-                   <div className={`p-3 ${isDark ? 'bg-[#1a1a1a]' : 'bg-gray-100'} rounded-lg flex items-center justify-between`}>
-                      <span className={`${theme.textDim} text-xs font-bold uppercase`}>{t.theme}</span>
-                      <button onClick={() => setIsDark(!isDark)} className={`px-4 py-1.5 rounded font-bold text-xs ${isDark ? 'bg-blue-600 text-white' : 'bg-gray-300 text-black'}`}>
-                         {isDark ? 'DARK' : 'LIGHT'}
-                      </button>
-                   </div>
-                   {/* Sound */}
-                   <div className={`p-3 ${isDark ? 'bg-[#1a1a1a]' : 'bg-gray-100'} rounded-lg flex items-center justify-between`}>
-                      <span className={`${theme.textDim} text-xs font-bold uppercase`}>{t.sound}</span>
-                      <button onClick={() => setSoundEnabled(!soundEnabled)} className={`px-4 py-1.5 rounded font-bold text-xs ${soundEnabled ? 'bg-green-600 text-white' : 'bg-red-500 text-white'}`}>
-                         {soundEnabled ? t.on : t.off}
-                      </button>
-                   </div>
-                </div>
-             </div>
-           </div>
-        )}
-
-        {/* REUSED MENU MODAL */}
-        {showMenu && (
-          <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-             <div className={`${theme.modalBg} w-full max-w-sm rounded-2xl p-6 shadow-2xl border ${theme.border} animate-in zoom-in duration-200 relative`}>
-                <button onClick={() => setShowMenu(false)} className={`absolute top-4 right-4 ${theme.textDim} hover:${theme.text}`}>
-                    <IconX />
-                </button>
-                <div className="flex justify-between items-center mb-6">
-                   <h2 className={`text-xl font-bold ${theme.text} uppercase tracking-wider`}>{t.menu}</h2>
-                </div>
-                <nav className="space-y-3">
-                   <button onClick={() => { setShowRules(true); }} className={`w-full text-left p-4 rounded-xl ${isDark ? 'bg-[#2d2d2d]' : 'bg-gray-100'} ${theme.text} font-bold hover:brightness-110 transition-all`}>
-                      📖 {t.rules}
-                   </button>
-                   <button onClick={() => { setShowSettings(true); }} className={`w-full text-left p-4 rounded-xl ${isDark ? 'bg-[#2d2d2d]' : 'bg-gray-100'} ${theme.text} font-bold hover:brightness-110 transition-all`}>
-                      ⚙️ {t.settings}
-                   </button>
-                   <a href="#" className={`block w-full text-left p-4 rounded-xl ${isDark ? 'bg-[#2d2d2d]' : 'bg-gray-100'} ${theme.text} font-bold hover:brightness-110 transition-all`}>
-                      ☕ {t.support}
-                   </a>
-                   <a href="#" className={`block w-full text-left p-4 rounded-xl ${isDark ? 'bg-[#2d2d2d]' : 'bg-gray-100'} text-blue-500 font-bold hover:brightness-110 transition-all`}>
-                      ✈️ {t.telegram}
-                   </a>
-                </nav>
-             </div>
-          </div>
-        )}
-        
-        {/* REUSED RULES MODAL */}
-        {showRules && (
-          <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-             <div className={`${theme.modalBg} w-full max-w-sm rounded-2xl p-6 border ${theme.border} shadow-2xl max-h-[85vh] overflow-y-auto relative`}>
-                <button onClick={() => setShowRules(false)} className={`absolute top-4 right-4 ${theme.textDim} hover:${theme.text}`}>
-                    <IconX />
-                </button>
-                <h3 className={`text-2xl font-black ${theme.text} mb-6 flex items-center gap-2 pr-8`}>
-                   <span>📄</span> {t.rulesTitle}
-                </h3>
-                <div className={`space-y-6 text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'} leading-relaxed`}>
-                   <div className={`p-4 ${isDark ? 'bg-[#1a1a1a]' : 'bg-gray-100'} rounded-xl border ${theme.border}`}>
-                      <p className="font-bold text-blue-500 mb-2">{t.expansion}</p>
-                      <p>{t.rulesText1}</p>
-                   </div>
-                   <div className={`p-4 ${isDark ? 'bg-[#1a1a1a]' : 'bg-gray-100'} rounded-xl border ${theme.border}`}>
-                      <p className="font-bold text-amber-500 mb-2">{t.battle}</p>
-                      <p>{t.rulesText2}</p>
-                   </div>
-                   <div className="p-4 bg-rose-500/10 rounded-xl border border-rose-500/30">
-                      <p className="font-bold text-rose-500 mb-2">⚠️ {t.locked}</p>
-                      <p>{t.rulesText3}</p>
-                   </div>
-                   <p className={`text-center font-bold ${theme.text} pt-2`}>{t.winCondition}</p>
-                </div>
-             </div>
-          </div>
-        )}
+        <Modals />
       </div>
     );
   }
 
-  // --- GAME VIEW ---
   return (
     <div className={`min-h-screen ${theme.bg} flex flex-col overflow-hidden transition-colors duration-300`}>
       <style>{cellStyle}</style>
       
-      {/* HEADER */}
       <header className={`h-16 border-b ${theme.border} flex items-center justify-between px-4 ${theme.surface} z-20 shrink-0`}>
         <button onClick={handleBackToMenu} className={`${theme.textDim} hover:${theme.text} p-2`}>
            <IconBack />
@@ -409,10 +398,7 @@ const App: React.FC = () => {
         </button>
       </header>
 
-      {/* MAIN GAME AREA */}
       <main className="flex-1 flex flex-col items-center justify-center relative w-full p-4 overflow-y-auto">
-        
-        {/* Opponent (Top) - Rotated 180 */}
         <div className="w-full max-w-md flex items-center justify-between mb-8 transform rotate-180 px-2 select-none shrink-0">
           <div className="flex items-center gap-3">
              <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-sm shadow-lg ${gameState.currentPlayer === Player.TWO ? 'bg-rose-600 text-white scale-110 ring-4 ring-rose-500/30' : `${theme.surface} ${theme.textDim}`} transition-all duration-300`}>
@@ -430,21 +416,11 @@ const App: React.FC = () => {
           </div>
         </div>
 
-        {/* BOARD */}
         <div className={`relative p-2 ${theme.boardBg} rounded-2xl shadow-2xl z-10 shrink-0`}>
-           {/* Phase Label */}
           <div className="absolute -top-10 left-0 right-0 flex justify-center pointer-events-none">
                <span className={`text-[10px] font-black tracking-[0.2em] uppercase px-3 py-1 rounded-full border ${theme.bg} shadow-lg ${gameState.phase === GamePhase.EXPANSION ? 'text-blue-500 border-blue-500/30' : 'text-amber-500 border-amber-500/30'}`}>
                   {gameState.phase === GamePhase.EXPANSION ? t.expansion : t.battle}
                </span>
-          </div>
-
-          {/* Coords */}
-          <div className={`absolute -left-6 top-0 bottom-0 flex flex-col justify-around py-4 text-[10px] font-bold ${theme.textDim} select-none h-full`}>
-            <span>3</span><span>2</span><span>1</span>
-          </div>
-          <div className={`absolute -bottom-6 left-0 right-0 flex justify-around px-4 text-[10px] font-bold ${theme.textDim} select-none w-full`}>
-            <span>a</span><span>b</span><span>c</span>
           </div>
 
           <div className={`grid grid-cols-3 gap-2 ${theme.bg} p-2 rounded-xl border ${theme.border} w-[80vw] h-[80vw] max-w-[320px] max-h-[320px]`}>
@@ -461,7 +437,6 @@ const App: React.FC = () => {
             ))}
           </div>
 
-          {/* Winner Overlay */}
           {gameState.winner && (
             <div className="absolute inset-0 z-30 flex items-center justify-center bg-black/85 backdrop-blur-sm rounded-xl animate-in fade-in duration-300">
                <div className="text-center p-4">
@@ -479,7 +454,6 @@ const App: React.FC = () => {
           )}
         </div>
 
-        {/* Player (Bottom) */}
         <div className="w-full max-w-md flex items-center justify-between mt-8 px-2 select-none shrink-0">
           <div className="flex items-center gap-3">
              <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-sm shadow-lg ${gameState.currentPlayer === Player.ONE ? 'bg-blue-600 text-white scale-110 ring-4 ring-blue-500/30' : `${theme.surface} ${theme.textDim}`} transition-all duration-300`}>
@@ -498,15 +472,12 @@ const App: React.FC = () => {
         </div>
       </main>
 
-      {/* FOOTER CONTROLS */}
       <footer className={`${theme.surface} border-t ${theme.border} p-3 z-20 shrink-0 safe-area-pb`}>
         <div className="flex items-center justify-between max-w-md mx-auto gap-2">
-          
           <button onClick={() => setShowMenu(true)} className={`flex flex-col items-center justify-center w-14 h-14 rounded-xl ${theme.textDim} hover:${theme.text} hover:${theme.bg} transition-all active:scale-95`}>
              <div className="scale-75"><IconMenu /></div>
              <span className="text-[10px] font-bold mt-1 uppercase">{t.menu}</span>
           </button>
-
           <button 
              onClick={handleUndo} 
              disabled={currentStep === 0 || isBotThinking || !!gameState.winner}
@@ -515,7 +486,6 @@ const App: React.FC = () => {
              <div className="scale-75"><IconUndo /></div>
              <span className="text-[10px] font-bold mt-1 uppercase">{t.undo}</span>
           </button>
-
           <button 
              onClick={handleRedo} 
              disabled={currentStep >= history.length - 1 || !!gameState.winner}
@@ -524,124 +494,21 @@ const App: React.FC = () => {
              <div className="scale-75"><IconRedo /></div>
              <span className="text-[10px] font-bold mt-1 uppercase">{t.redo}</span>
           </button>
-          
-          {/* Pause Button - Aligned straight */}
           <button onClick={togglePause} className={`flex flex-col items-center justify-center w-14 h-14 rounded-xl ${theme.textDim} hover:${theme.text} hover:${theme.bg} transition-all active:scale-95`}>
              <div className="scale-75"><IconPause /></div>
              <span className="text-[10px] font-bold mt-1 uppercase">{t.paused}</span>
           </button>
-
           <button onClick={resetGame} className={`flex flex-col items-center justify-center w-14 h-14 rounded-xl ${theme.textDim} hover:text-rose-500 hover:${theme.bg} transition-all active:scale-95`}>
              <div className="scale-75"><IconReset /></div>
              <span className="text-[10px] font-bold mt-1 uppercase">{t.reset}</span>
           </button>
-
         </div>
       </footer>
 
-      {/* --- OVERLAYS --- */}
+      <Modals />
 
-      {/* Modals are reused in Menu block above for simplicity, only Settings needs to be duplicated if opened from header */}
-      {showSettings && status !== GameStatus.MENU && (
-           <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-             <div className={`${theme.modalBg} w-full max-w-xs rounded-2xl p-6 border ${theme.border} shadow-2xl relative`}>
-                <button onClick={() => setShowSettings(false)} className={`absolute top-4 right-4 ${theme.textDim} hover:${theme.text}`}>
-                   <IconX />
-                </button>
-                <h3 className={`text-xl font-bold ${theme.text} mb-6 pr-8`}>{t.settings}</h3>
-                <div className="space-y-4">
-                   <div className={`p-3 ${isDark ? 'bg-[#1a1a1a]' : 'bg-gray-100'} rounded-lg`}>
-                      <span className={`${theme.textDim} text-xs font-bold uppercase mb-2 block`}>{t.lang}</span>
-                      <div className="flex gap-2">
-                         {[Language.RU, Language.EN, Language.UZ].map(l => (
-                           <button key={l} onClick={() => setLanguage(l)} className={`flex-1 py-2 text-xs font-bold rounded transition-colors ${language === l ? 'bg-blue-600 text-white' : `${isDark ? 'bg-[#333]' : 'bg-white'} ${theme.textDim}`}`}>
-                             {l}
-                           </button>
-                         ))}
-                      </div>
-                   </div>
-                   {/* Theme Toggle */}
-                   <div className={`p-3 ${isDark ? 'bg-[#1a1a1a]' : 'bg-gray-100'} rounded-lg flex items-center justify-between`}>
-                      <span className={`${theme.textDim} text-xs font-bold uppercase`}>{t.theme}</span>
-                      <button onClick={() => setIsDark(!isDark)} className={`px-4 py-1.5 rounded font-bold text-xs ${isDark ? 'bg-blue-600 text-white' : 'bg-gray-300 text-black'}`}>
-                         {isDark ? 'DARK' : 'LIGHT'}
-                      </button>
-                   </div>
-                   {/* Sound Toggle */}
-                   <div className={`p-3 ${isDark ? 'bg-[#1a1a1a]' : 'bg-gray-100'} rounded-lg flex items-center justify-between`}>
-                      <span className={`${theme.textDim} text-xs font-bold uppercase`}>{t.sound}</span>
-                      <button onClick={() => setSoundEnabled(!soundEnabled)} className={`px-4 py-1.5 rounded font-bold text-xs ${soundEnabled ? 'bg-green-600 text-white' : 'bg-red-500 text-white'}`}>
-                         {soundEnabled ? t.on : t.off}
-                      </button>
-                   </div>
-                </div>
-             </div>
-           </div>
-      )}
-
-      {/* In-Game Menu Modal */}
-      {showMenu && (
-          <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-             <div className={`${theme.modalBg} w-full max-w-sm rounded-2xl p-6 shadow-2xl border ${theme.border} animate-in zoom-in duration-200 relative`}>
-                <button onClick={() => setShowMenu(false)} className={`absolute top-4 right-4 ${theme.textDim} hover:${theme.text}`}>
-                    <IconX />
-                </button>
-                <div className="flex justify-between items-center mb-6">
-                   <h2 className={`text-xl font-bold ${theme.text} uppercase tracking-wider`}>{t.menu}</h2>
-                </div>
-                <nav className="space-y-3">
-                   <button onClick={() => { setShowRules(true); }} className={`w-full text-left p-4 rounded-xl ${isDark ? 'bg-[#2d2d2d]' : 'bg-gray-100'} ${theme.text} font-bold hover:brightness-110 transition-all`}>
-                      📖 {t.rules}
-                   </button>
-                   <button onClick={() => { setShowSettings(true); }} className={`w-full text-left p-4 rounded-xl ${isDark ? 'bg-[#2d2d2d]' : 'bg-gray-100'} ${theme.text} font-bold hover:brightness-110 transition-all`}>
-                      ⚙️ {t.settings}
-                   </button>
-                   <a href="#" className={`block w-full text-left p-4 rounded-xl ${isDark ? 'bg-[#2d2d2d]' : 'bg-gray-100'} ${theme.text} font-bold hover:brightness-110 transition-all`}>
-                      ☕ {t.support}
-                   </a>
-                   <a href="#" className={`block w-full text-left p-4 rounded-xl ${isDark ? 'bg-[#2d2d2d]' : 'bg-gray-100'} text-blue-500 font-bold hover:brightness-110 transition-all`}>
-                      ✈️ {t.telegram}
-                   </a>
-                   <button onClick={handleBackToMenu} className={`w-full text-left p-4 rounded-xl bg-red-500/10 text-red-500 font-bold hover:bg-red-500/20 transition-all`}>
-                      🚪 {t.exit}
-                   </button>
-                </nav>
-             </div>
-          </div>
-      )}
-
-      {/* In-Game Rules Modal */}
-      {showRules && (
-          <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-             <div className={`${theme.modalBg} w-full max-w-sm rounded-2xl p-6 border ${theme.border} shadow-2xl max-h-[85vh] overflow-y-auto relative`}>
-                <button onClick={() => setShowRules(false)} className={`absolute top-4 right-4 ${theme.textDim} hover:${theme.text}`}>
-                    <IconX />
-                </button>
-                <h3 className={`text-2xl font-black ${theme.text} mb-6 flex items-center gap-2 pr-8`}>
-                   <span>📄</span> {t.rulesTitle}
-                </h3>
-                <div className={`space-y-6 text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'} leading-relaxed`}>
-                   <div className={`p-4 ${isDark ? 'bg-[#1a1a1a]' : 'bg-gray-100'} rounded-xl border ${theme.border}`}>
-                      <p className="font-bold text-blue-500 mb-2">{t.expansion}</p>
-                      <p>{t.rulesText1}</p>
-                   </div>
-                   <div className={`p-4 ${isDark ? 'bg-[#1a1a1a]' : 'bg-gray-100'} rounded-xl border ${theme.border}`}>
-                      <p className="font-bold text-amber-500 mb-2">{t.battle}</p>
-                      <p>{t.rulesText2}</p>
-                   </div>
-                   <div className="p-4 bg-rose-500/10 rounded-xl border border-rose-500/30">
-                      <p className="font-bold text-rose-500 mb-2">⚠️ {t.locked}</p>
-                      <p>{t.rulesText3}</p>
-                   </div>
-                   <p className={`text-center font-bold ${theme.text} pt-2`}>{t.winCondition}</p>
-                </div>
-             </div>
-          </div>
-      )}
-
-      {/* PAUSE OVERLAY */}
       {status === GameStatus.PAUSED && (
-        <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-[150] flex flex-col items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
            <div className="text-4xl font-black text-white tracking-widest uppercase mb-8">{t.paused}</div>
            <button 
              onClick={togglePause}

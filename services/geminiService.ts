@@ -4,12 +4,14 @@ import { GameState, Player, SymbolType, GamePhase } from "../types";
 import { isValidMove } from "../logic/gameEngine";
 
 export const getBotMove = async (state: GameState): Promise<number | null> => {
-  if (!process.env.API_KEY) {
+  // Check for API key at runtime inside the function
+  const apiKey = process.env.API_KEY;
+  if (!apiKey) {
     console.warn("No API Key found for Gemini Bot");
     return null;
   }
 
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  const ai = new GoogleGenAI({ apiKey });
   
   const boardStr = state.board.map((s, i) => `${i}:${s || 'EMPTY'}`).join(', ');
   const playerSymbol = state.currentPlayer === Player.ONE ? 'VERTICAL (|)' : 'HORIZONTAL (—)';
@@ -65,7 +67,7 @@ export const getBotMove = async (state: GameState): Promise<number | null> => {
     console.error("Gemini AI Error:", error);
   }
 
-  // Fallback to random legal move if AI fails
+  // Fallback to random legal move if AI fails or returns invalid move
   const legalMoves = state.board
     .map((_, i) => i)
     .filter(i => isValidMove(state, i, state.currentPlayer));
